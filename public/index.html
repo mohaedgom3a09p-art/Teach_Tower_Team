@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BUT Security Project</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #00d2ff; --bg: #0f172a; --card: #1e293b; --success: #10b981; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; }
+        .header { background: #1a202c; width: 100%; text-align: center; padding: 15px; border-bottom: 3px solid var(--primary); }
+        .card { background: var(--card); padding: 25px; border-radius: 15px; width: 400px; margin-top: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: var(--primary); border: none; font-weight: bold; cursor: pointer; border-radius: 8px; transition: 0.3s; }
+        button:hover { opacity: 0.8; transform: translateY(-1px); }
+        
+        /* Logout Button Styles */
+        .logout-btn { background: #ef4444; color: white; margin-top: 15px; font-size: 0.8rem; padding: 8px; }
+
+        /* Toast Styles (الإشعارات) */
+        #toast {
+            position: fixed; top: 20px; right: -300px; 
+            background: var(--success); color: white; padding: 15px 25px; 
+            border-radius: 10px; display: flex; align-items: center; gap: 10px;
+            transition: right 0.5s ease-in-out; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        #toast.show { right: 20px; }
+
+        #chat-ui { display: none; width: 450px; }
+        .chat-box { height: 300px; overflow-y: auto; background: #0f172a; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #334155; }
+        .msg { background: #334155; padding: 10px; margin: 8px 0; border-radius: 8px; border-left: 3px solid var(--primary); }
+        .small-title { color: var(--primary); font-size: 0.7rem; text-transform: uppercase; display: block; font-family: monospace; }
+    </style>
+</head>
+<body>
+
+<div id="toast">
+    <i id="toast-icon" class="fas fa-check-circle fa-lg"></i>
+    <span id="toast-msg"></span>
+</div>
+
+<div class="header">
+    <div style="font-size: 0.6rem; color: #94a3b8; letter-spacing: 2px;">BORG AL ARAB TECHNOLOGICAL UNIVERSITY</div>
+    <div style="color: var(--primary); font-weight: bold; font-size: 1.3rem;">Teach Tower Team</div>
+</div>
+
+<div id="auth-ui" class="card">
+    <h2 style="text-align: center; margin-top: 0;">Secure Access</h2>
+    <input type="text" id="u" placeholder="Username">
+    <input type="password" id="p" placeholder="Password">
+    <button onclick="auth('login')">Login <i class="fas fa-sign-in-alt"></i></button>
+    <button onclick="auth('register')" style="background:none; border:1px solid var(--primary); color:var(--primary); margin-top:10px;">Create New Account</button>
+</div>
+
+<div id="chat-ui" class="card">
+    <h3 id="user-tag" style="color:var(--primary); margin-top: 0;"></h3>
+    <div class="chat-box" id="box"></div>
+    <div style="display: flex; gap: 5px;">
+        <input type="text" id="m-in" placeholder="Write a secret message...">
+        <button onclick="send()" style="width: 60px;"><i class="fas fa-paper-plane"></i></button>
+    </div>
+    <button onclick="logout()" class="logout-btn">Logout <i class="fas fa-sign-out-alt"></i></button>
+</div>
+
+<script>
+    let myId = null;
+
+    // دالة الإشعارات (Toast)
+    function showNotify(msg, isSuccess = true) {
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toast-msg');
+        toastMsg.innerText = msg;
+        toast.style.background = isSuccess ? "#10b981" : "#ef4444";
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Caesar Cipher Logic (Shift 3)
+    function caesar(t) {
+        return t.replace(/[a-z]/gi, (c) => {
+            const s = c <= 'Z' ? 65 : 97;
+            return String.fromCharCode(((c.charCodeAt(0) - s + 3) % 26) + s);
+        });
+    }
+
+    async function auth(type) {
+        const user = document.getElementById('u').value;
+        const pass = document.getElementById('p').value;
+        if(!user || !pass) return showNotify("Please fill all fields", false);
+
+        const res = await fetch('/api/' + type, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ user, pass })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            if (type === 'login') {
+                myId = data.userId;
+                document.getElementById('auth-ui').style.display = 'none';
+                document.getElementById('chat-ui').style.display = 'block';
+                document.getElementById('user-tag').innerText = "Personal Vault: " + data.userName;
+                showNotify("Welcome back, " + data.userName + "! 🎉");
+                load();
+                setInterval(load, 3000);
+            } else {
+                showNotify("Congratulations! Account Created! 🎊");
+            }
+        } else {
+            showNotify(data.error || "Execution failed", false);
+        }
+    }
+
+    async function send() {
+        const input = document.getElementById('m-in');
+        const plain = input.value;
+        if (!plain) return;
+        const cipher = caesar(plain);
+
+        await fetch('/api/send', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ uid: myId, cipher: cipher, plain: plain })
+        });
+        input.value = '';
+        load();
+        showNotify("Message Encrypted & Saved! 🔒");
+    }
+
+    async function load() {
+        if (!myId) return;
+        const res = await fetch('/api/messages/' + myId);
+        const msgs = await res.json();
+        const box = document.getElementById('box');
+        box.innerHTML = msgs.map(m => `
+            <div class="msg">
+                <span class="small-title"><i class="fas fa-lock"></i> Caesar Cipher</span>
+                <div style="color:var(--primary); margin: 5px 0;">${m.encrypted_text}</div>
+                <span class="small-title"><i class="fas fa-unlock"></i> Plain Text</span>
+                <div>${m.plain_text}</div>
+            </div>
+        `).join('');
+        box.scrollTop = box.scrollHeight;
+    }
+
+    function logout() {
+        myId = null;
+        location.reload(); // إعادة تحميل الصفحة لمسح البيانات من الذاكرة
+    }
+</script>
+</body>
+</html>
