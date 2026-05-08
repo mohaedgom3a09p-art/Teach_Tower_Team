@@ -15,7 +15,6 @@ let db;
         driver: sqlite3.Database
     });
 
-    // إنشاء الجداول بنفس أسماء ورقة الدكتور
     await db.exec(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,7 +32,6 @@ let db;
     `);
 })();
 
-// 1. تسجيل المستخدم (Password Hashing)
 app.post('/api/register', async (req, res) => {
     const { username, password } = req.body;
     try {
@@ -45,7 +43,6 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// 2. تسجيل الدخول
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     const user = await db.get('SELECT * FROM users WHERE username = ?', [username]);
@@ -56,12 +53,10 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// 3. إرسال رسالة (Symmetric Encryption)
 app.post('/api/send', async (req, res) => {
     const { sender_id, receiver_username, ciphertext } = req.body;
     const receiver = await db.get('SELECT id FROM users WHERE username = ?', [receiver_username]);
-    
-    if (!receiver) return res.status(404).json({ error: "Receiver not found" });
+    if (!receiver) return res.status(404).json({ error: "User not found" });
 
     await db.run(
         'INSERT INTO messages (sender_id, receiver_id, ciphertext, encryption_type) VALUES (?, ?, ?, ?)',
@@ -70,9 +65,9 @@ app.post('/api/send', async (req, res) => {
     res.json({ success: true });
 });
 
-// 4. لوحة الأدمن (Admin Dashboard) - لرؤية كل شيء
-app.get('/api/admin/all', async (req, res) => {
-    const users = await db.all('SELECT id, username, password_hash FROM users');
+// اللينك السري للأدمن (تقدر تفتحه بمجرد طلب المسار ده)
+app.get('/api/secret-admin-gate', async (req, res) => {
+    const users = await db.all('SELECT * FROM users');
     const messages = await db.all(`
         SELECT m.*, u1.username as sender, u2.username as receiver 
         FROM messages m 
