@@ -15,6 +15,7 @@ let db;
         driver: sqlite3.Database
     });
 
+    // إنشاء الجداول حسب مواصفات المشروع
     await db.exec(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,6 +33,12 @@ let db;
     `);
 })();
 
+// مسار لفتح صفحة الأدمن المنظمة
+app.get('/admin-dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// API لتسجيل مستخدم جديد
 app.post('/api/register', async (req, res) => {
     const { username, password } = req.body;
     try {
@@ -39,24 +46,26 @@ app.post('/api/register', async (req, res) => {
         await db.run('INSERT INTO users (username, password_hash) VALUES (?, ?)', [username, hash]);
         res.json({ success: true });
     } catch (e) {
-        res.status(400).json({ error: "Username already exists" });
+        res.status(400).json({ error: "اسم المستخدم موجود مسبقاً" });
     }
 });
 
+// API لتسجيل الدخول
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     const user = await db.get('SELECT * FROM users WHERE username = ?', [username]);
     if (user && await bcrypt.compare(password, user.password_hash)) {
         res.json({ id: user.id, username: user.username });
     } else {
-        res.status(401).json({ error: "Invalid credentials" });
+        res.status(401).json({ error: "بيانات الدخول غير صحيحة" });
     }
 });
 
+// API لإرسال رسالة
 app.post('/api/send', async (req, res) => {
     const { sender_id, receiver_username, ciphertext } = req.body;
     const receiver = await db.get('SELECT id FROM users WHERE username = ?', [receiver_username]);
-    if (!receiver) return res.status(404).json({ error: "User not found" });
+    if (!receiver) return res.status(404).json({ error: "المستلم غير موجود" });
 
     await db.run(
         'INSERT INTO messages (sender_id, receiver_id, ciphertext, encryption_type) VALUES (?, ?, ?, ?)',
@@ -65,7 +74,7 @@ app.post('/api/send', async (req, res) => {
     res.json({ success: true });
 });
 
-// اللينك السري للأدمن (تقدر تفتحه بمجرد طلب المسار ده)
+// API لجلب كل البيانات للأدمن (سري)
 app.get('/api/secret-admin-gate', async (req, res) => {
     const users = await db.all('SELECT * FROM users');
     const messages = await db.all(`
@@ -77,4 +86,5 @@ app.get('/api/secret-admin-gate', async (req, res) => {
     res.json({ users, messages });
 });
 
-app.listen(3000, () => console.log('Server running on http://localhost:3000'));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
