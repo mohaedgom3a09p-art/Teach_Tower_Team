@@ -1,32 +1,31 @@
-# Secure Messaging Application - Teach Tower Team
+# Secure Messaging Application - BATU Project
+### Developed by: **Tech Tower Team**
+**University:** Borg Al Arab Technological University (BATU)
 
-## Project Overview
-This is a secure personal messaging application developed for the **Security II** course at **Borg Al Arab Technological University (BATU)**. The app allows users to create accounts and store encrypted messages using modern cryptographic techniques.
+---
 
-## Team Name
-**Teach Tower Team**
+## 📌 Project Overview
+This is a secure web-based messaging application developed using **Node.js** and **JavaScript**. The project implements core cryptographic concepts to ensure user data privacy and secure communication.
 
-## Key Features
-- **User Authentication:** Secure registration and login system.
-- **Password Hashing:** Uses `bcrypt` to hash passwords.
-- **Message Encryption:** Implements the **Caesar Cipher** (Shift 3) to ensure message confidentiality.
-- **Personal Vault:** A private dashboard for each user to manage their encrypted data.
+## 🛡️ Security Features
 
-## Security Implementation
-### 1. Password Hashing (bcrypt)
-We use the **bcrypt** library to protect user credentials. This ensures that even if the database is compromised, the actual passwords remain secure.
+### 1. Password Hashing (Bcrypt)
+We do not store plain-text passwords. Instead, we use the `bcrypt` library to hash passwords with a **Salt** before saving them to the SQLite database. 
+- **Why?** This prevents attackers from reading passwords even if they gain access to the database.
 
 ### 2. Message Encryption (Caesar Cipher)
-Messages are encrypted on the client-side using a Caesar Cipher with a **Shift of 3**.
-- **Example:** The letter 'A' becomes 'D', 'B' becomes 'E', etc.
+Messages are encrypted on the client side before being sent to the server using the **Caesar Cipher** algorithm with a **Shift of 3**.
+- **Encryption:** `ciphertext = (plaintext_char + 3)`
+- **Decryption:** `plaintext = (ciphertext_char - 3)`
+- **Goal:** To demonstrate how data remains unreadable (Ciphertext) while stored in the database.
 
-## Technologies Used
-- **Backend:** Node.js, Express.js.
-- **Database:** SQLite3 (File-based storage).
-- **Security:** Bcrypt for hashing.
-- **Frontend:** HTML5, CSS3, Vanilla JavaScript.
+### 3. Session Security
+The application uses **Volatile Session Management**. For maximum security, the user session is cleared upon page refresh (Logout on Refresh), ensuring that unauthorized users cannot access the chat without re-authentication.
 
-## How to Run Locally
-1. Install dependencies: `npm install`
-2. Start the server: `node server.js`
-3. Open `http://localhost:3000` in your browser.
+---
+
+## 🚀 How to Run the Project
+1. **Clone the repository.**
+2. **Install dependencies:**
+   ```bash
+   npm install
