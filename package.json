@@ -1,15 +1,14 @@
 {
-  "name": "teach-tower-secure-chat",
+  "name": "batu-security-project",
   "version": "1.0.0",
-  "description": "Secure Messaging App for BUT University",
   "main": "server.js",
+  "dependencies": {
+    "express": "^4.18.2",
+    "bcrypt": "^5.1.1",
+    "sqlite3": "^5.1.6",
+    "sqlite": "^5.0.1"
+  },
   "scripts": {
     "start": "node server.js"
-  },
-  "dependencies": {
-    "bcrypt": "^5.1.1",
-    "express": "^4.18.2",
-    "sqlite": "^5.1.1",
-    "sqlite3": "^5.1.7"
   }
 }
