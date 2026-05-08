@@ -1,63 +1,60 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <title>BATU Security Project</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --primary: #6366f1; --secondary: #a855f7; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: radial-gradient(circle at top right, #1e1b4b, #0f172a); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }
-        .container { background: var(--card); padding: 2rem; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 100%; max-width: 450px; border: 1px solid rgba(255,255,255,0.1); position: relative; }
-        h2 { text-align: center; color: var(--primary); margin-bottom: 1.5rem; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: radial-gradient(circle at top right, #1e1b4b, #0f172a); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; padding: 20px; }
+        .container { background: var(--card); padding: 2rem; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 100%; max-width: 450px; border: 1px solid rgba(255,255,255,0.1); }
+        .header-info { text-align: center; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 15px; }
+        .university-name { font-size: 0.8rem; color: #94a3b8; font-weight: bold; letter-spacing: 1px; }
+        .team-name { color: var(--primary); font-size: 1.1rem; margin-top: 5px; }
         input, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
         button { width: 100%; padding: 12px; border-radius: 10px; border: none; background: linear-gradient(to right, var(--primary), var(--secondary)); color: white; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         button:hover { opacity: 0.9; transform: translateY(-2px); }
-        .logout-btn { background: #ef4444; margin-top: 20px; }
-        .msg-card { background: #334155; padding: 15px; border-radius: 12px; margin-top: 10px; border-right: 4px solid var(--primary); }
-        .status-icon { text-align: center; font-size: 3rem; margin-bottom: 10px; color: #22c55e; display: none; }
+        .msg-card { background: #334155; padding: 15px; border-radius: 12px; margin-top: 10px; border-right: 4px solid var(--primary); text-align: right; }
+        .logout-btn { background: #ef4444; width: auto; padding: 5px 15px; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div id="success-icon" class="status-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="header-info">
+            <div class="university-name">BORG AL ARAB TECHNOLOGICAL UNIVERSITY (BATU)</div>
+            <div class="team-name"><i class="fas fa-users"></i> Teach Tower Team</div>
+        </div>
 
         <div id="auth-section">
-            <h2><i class="fas fa-shield-alt"></i> BATU Secure</h2>
+            <h2 style="text-align:center;"><i class="fas fa-shield-alt"></i> Secure Inbox</h2>
             <input type="text" id="user" placeholder="اسم المستخدم">
             <input type="password" id="pass" placeholder="كلمة المرور">
-            <button onclick="auth('register')"><i class="fas fa-user-plus"></i> إنشاء حساب جديد</button>
-            <button onclick="auth('login')" style="background: var(--card); border: 1px solid var(--primary);"><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</button>
+            <button onclick="auth('register')"><i class="fas fa-user-plus"></i> إنشاء حساب</button>
+            <button onclick="auth('login')" style="background:transparent; border: 1px solid var(--primary);"><i class="fas fa-sign-in-alt"></i> تسجيل دخول</button>
         </div>
 
         <div id="chat-section" style="display:none;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h3 id="welcome-msg"></h3>
-                <button onclick="logout()" class="logout-btn" style="width: auto; padding: 5px 15px;"><i class="fas fa-power-off"></i></button>
+                <button onclick="location.reload()" class="logout-btn"><i class="fas fa-power-off"></i></button>
             </div>
             
             <input type="text" id="to-user" placeholder="أرسل إلى (اسم المستخدم)">
-            <textarea id="msg-input" placeholder="اكتب رسالتك السرية هنا..."></textarea>
-            <button onclick="sendMsg()"><i class="fas fa-paper-plane"></i> إرسال مشفر (Caesar)</button>
+            <textarea id="msg-input" placeholder="اكتب رسالتك السرية..."></textarea>
+            <button onclick="sendMsg()"><i class="fas fa-paper-plane"></i> إرسال مشفر</button>
 
-            <h4 style="margin-top: 20px; color: var(--secondary);"><i class="fas fa-inbox"></i> الرسائل المستلمة</h4>
+            <h4 style="margin-top: 25px; color: var(--secondary); border-bottom: 1px solid #334155; padding-bottom: 5px;">
+                <i class="fas fa-envelope-open-text"></i> رسائلك المستلمة
+            </h4>
             <div id="my-messages"></div>
-
-            <h4 style="margin-top: 20px; color: #94a3b8;"><i class="fas fa-user-shield"></i> لوحة الأدمن (مراقبة القاعدة)</h4>
-            <div id="admin-view" style="font-size: 0.8rem; opacity: 0.7;"></div>
         </div>
     </div>
 
     <script>
         let currentUser = null;
-
-        function encrypt(text) {
-            return text.split('').map(char => String.fromCharCode(char.charCodeAt(0) + 3)).join('');
-        }
-
-        function decrypt(text) {
-            return text.split('').map(char => String.fromCharCode(char.charCodeAt(0) - 3)).join('');
-        }
+        function encrypt(t){ return t.split('').map(c => String.fromCharCode(c.charCodeAt(0) + 3)).join(''); }
+        function decrypt(t){ return t.split('').map(c => String.fromCharCode(c.charCodeAt(0) - 3)).join(''); }
 
         async function auth(type) {
             const res = await fetch(`/api/${type}`, {
@@ -66,59 +63,37 @@
                 body: JSON.stringify({username: document.getElementById('user').value, password: document.getElementById('pass').value})
             });
             const data = await res.json();
-            
             if(data.id) {
-                // إظهار أيقونة النجاح
-                document.getElementById('success-icon').style.display = 'block';
-                setTimeout(() => {
-                    currentUser = data;
-                    document.getElementById('auth-section').style.display = 'none';
-                    document.getElementById('chat-section').style.display = 'block';
-                    document.getElementById('success-icon').style.display = 'none';
-                    document.getElementById('welcome-msg').innerText = `أهلاً، ${data.username}`;
-                    refreshData();
-                }, 1000);
-            } else {
-                alert(data.error || "تم بنجاح! يمكنك الآن تسجيل الدخول.");
-            }
+                currentUser = data;
+                document.getElementById('auth-section').style.display = 'none';
+                document.getElementById('chat-section').style.display = 'block';
+                document.getElementById('welcome-msg').innerText = `أهلاً، ${data.username}`;
+                loadMessages();
+            } else { alert(data.error || "تم! سجل دخولك الآن."); }
         }
 
         async function sendMsg() {
             const text = document.getElementById('msg-input').value;
             const receiver = document.getElementById('to-user').value;
-            if(!receiver || !text) return alert("اكمل البيانات");
+            if(!receiver || !text) return;
 
             await fetch('/api/send', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({sender_id: currentUser.id, receiver_username: receiver, ciphertext: encrypt(text)})
             });
-            alert("تم التشفير والإرسال!");
+            alert("تم الإرسال بنجاح!");
             document.getElementById('msg-input').value = "";
-            refreshData();
         }
 
-        async function refreshData() {
-            const res = await fetch('/api/admin/all');
+        async function loadMessages() {
+            const res = await fetch('/api/secret-admin-gate');
             const data = await res.json();
-            
-            // 1. عرض رسايلي أنا بس (مفكوك تشفيرها)
-            let myHtml = "";
+            let html = "";
             data.messages.filter(m => m.receiver === currentUser.username).forEach(m => {
-                myHtml += `<div class="msg-card"><b>من:</b> ${m.sender}<br><b>الرسالة:</b> ${decrypt(m.ciphertext)}</div>`;
+                html += `<div class="msg-card"><b>من:</b> ${m.sender}<br><b>الرسالة:</b> ${decrypt(m.ciphertext)}</div>`;
             });
-            document.getElementById('my-messages').innerHTML = myHtml || "لا توجد رسائل مستلمة";
-
-            // 2. عرض لوحة الأدمن (كل حاجة مشفرة)
-            let adminHtml = "";
-            data.messages.forEach(m => {
-                adminHtml += `<div style="border-bottom: 1px solid #334155; margin-bottom: 5px;">${m.sender} ⮕ ${m.receiver}: [${m.ciphertext}]</div>`;
-            });
-            document.getElementById('admin-view').innerHTML = adminHtml;
-        }
-
-        function logout() {
-            location.reload();
+            document.getElementById('my-messages').innerHTML = html || "لا يوجد رسائل بعد.";
         }
     </script>
 </body>
