@@ -6,55 +6,94 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --primary: #6366f1; --secondary: #a855f7; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: radial-gradient(circle at top right, #1e1b4b, #0f172a); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; padding: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: radial-gradient(circle at top right, #1e1b4b, #0f172a); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0; padding: 20px; box-sizing: border-box; }
         .container { background: var(--card); padding: 2rem; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 100%; max-width: 450px; border: 1px solid rgba(255,255,255,0.1); }
         .header-info { text-align: center; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 15px; }
-        .university-name { font-size: 0.8rem; color: #94a3b8; font-weight: bold; letter-spacing: 1px; }
-        .team-name { color: var(--primary); font-size: 1.1rem; margin-top: 5px; }
-        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
+        .university-name { font-size: 0.75rem; color: #94a3b8; font-weight: bold; letter-spacing: 1px; }
+        .team-name { color: var(--primary); font-size: 1.1rem; margin-top: 5px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; outline: none; }
+        input:focus { border-color: var(--primary); }
         button { width: 100%; padding: 12px; border-radius: 10px; border: none; background: linear-gradient(to right, var(--primary), var(--secondary)); color: white; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         button:hover { opacity: 0.9; transform: translateY(-2px); }
-        .msg-card { background: #334155; padding: 15px; border-radius: 12px; margin-top: 10px; border-right: 4px solid var(--primary); text-align: right; }
-        .logout-btn { background: #ef4444; width: auto; padding: 5px 15px; }
+        .msg-card { background: #0f172a; padding: 15px; border-radius: 12px; margin-top: 10px; border-right: 4px solid var(--primary); }
+        .footer { margin-top: 20px; font-size: 0.8rem; color: #64748b; text-align: center; }
+        .footer span { color: var(--secondary); font-weight: bold; }
+
+        /* ستايل لوحة الأدمن المنظمة */
+        #admin-section { max-width: 900px; width: 100%; display: none; }
+        .admin-table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 15px; overflow: hidden; margin-top: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .admin-table th, .admin-table td { padding: 15px; text-align: center; border-bottom: 1px solid #334155; }
+        .admin-table th { background: #334155; color: var(--primary); }
+        .hash-text { font-family: monospace; font-size: 0.7rem; color: #10b981; word-break: break-all; }
+        .cipher-text { color: #f59e0b; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div class="container" id="main-container">
         <div class="header-info">
             <div class="university-name">BORG AL ARAB TECHNOLOGICAL UNIVERSITY (BATU)</div>
             <div class="team-name"><i class="fas fa-users"></i> Teach Tower Team</div>
         </div>
 
         <div id="auth-section">
-            <h2 style="text-align:center;"><i class="fas fa-shield-alt"></i> Secure Inbox</h2>
+            <h2 style="text-align:center;"><i class="fas fa-user-shield"></i> Secure Login</h2>
             <input type="text" id="user" placeholder="اسم المستخدم">
             <input type="password" id="pass" placeholder="كلمة المرور">
             <button onclick="auth('register')"><i class="fas fa-user-plus"></i> إنشاء حساب</button>
-            <button onclick="auth('login')" style="background:transparent; border: 1px solid var(--primary);"><i class="fas fa-sign-in-alt"></i> تسجيل دخول</button>
+            <button onclick="auth('login')" style="background:transparent; border: 1px solid var(--primary);"><i class="fas fa-sign-in-alt"></i> دخول</button>
         </div>
 
         <div id="chat-section" style="display:none;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h3 id="welcome-msg"></h3>
-                <button onclick="location.reload()" class="logout-btn"><i class="fas fa-power-off"></i></button>
+                <button onclick="location.reload()" style="width:auto; background:#ef4444; padding: 5px 15px;"><i class="fas fa-power-off"></i></button>
             </div>
-            
             <input type="text" id="to-user" placeholder="أرسل إلى (اسم المستخدم)">
             <textarea id="msg-input" placeholder="اكتب رسالتك السرية..."></textarea>
-            <button onclick="sendMsg()"><i class="fas fa-paper-plane"></i> إرسال مشفر</button>
-
-            <h4 style="margin-top: 25px; color: var(--secondary); border-bottom: 1px solid #334155; padding-bottom: 5px;">
-                <i class="fas fa-envelope-open-text"></i> رسائلك المستلمة
-            </h4>
+            <button onclick="sendMsg()"><i class="fas fa-paper-plane"></i> تشفير وإرسال</button>
+            
+            <h4 style="margin-top: 20px; color: var(--secondary);"><i class="fas fa-inbox"></i> رسائلك المستلمة</h4>
             <div id="my-messages"></div>
         </div>
+
+        <div class="footer">
+            Powered by <span>Teach Tower Team</span>
+        </div>
+    </div>
+
+    <div id="admin-section">
+        <h2 style="text-align:center; color:var(--primary);">لوحة تحكم الأدمن - مراقبة البيانات</h2>
+        
+        <h3><i class="fas fa-users"></i> قائمة المستخدمين (Passwords Hashed)</h3>
+        <table class="admin-table">
+            <thead>
+                <tr><th>ID</th><th>Username</th><th>Password Hash (Bcrypt)</th></tr>
+            </thead>
+            <tbody id="users-table-body"></tbody>
+        </table>
+
+        <h3><i class="fas fa-history"></i> سجل الرسائل المشفرة (Ciphertext)</h3>
+        <table class="admin-table">
+            <thead>
+                <tr><th>من</th><th>إلى</th><th>النص المشفر</th><th>النوع</th></tr>
+            </thead>
+            <tbody id="messages-table-body"></tbody>
+        </table>
+        <button onclick="location.href='/'" style="margin-top:20px; background:#475569;">العودة للرئيسية</button>
     </div>
 
     <script>
         let currentUser = null;
         function encrypt(t){ return t.split('').map(c => String.fromCharCode(c.charCodeAt(0) + 3)).join(''); }
         function decrypt(t){ return t.split('').map(c => String.fromCharCode(c.charCodeAt(0) - 3)).join(''); }
+
+        // فحص لوحة الأدمن من اللينك
+        if(window.location.pathname === '/admin-dashboard') {
+            document.getElementById('main-container').style.display = 'none';
+            document.getElementById('admin-section').style.display = 'block';
+            loadAdminData();
+        }
 
         async function auth(type) {
             const res = await fetch(`/api/${type}`, {
@@ -69,20 +108,19 @@
                 document.getElementById('chat-section').style.display = 'block';
                 document.getElementById('welcome-msg').innerText = `أهلاً، ${data.username}`;
                 loadMessages();
-            } else { alert(data.error || "تم! سجل دخولك الآن."); }
+            } else { alert(data.error || "تمت العملية بنجاح!"); }
         }
 
         async function sendMsg() {
             const text = document.getElementById('msg-input').value;
             const receiver = document.getElementById('to-user').value;
             if(!receiver || !text) return;
-
             await fetch('/api/send', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({sender_id: currentUser.id, receiver_username: receiver, ciphertext: encrypt(text)})
             });
-            alert("تم الإرسال بنجاح!");
+            alert("تم الإرسال مشفراً!");
             document.getElementById('msg-input').value = "";
         }
 
@@ -93,7 +131,24 @@
             data.messages.filter(m => m.receiver === currentUser.username).forEach(m => {
                 html += `<div class="msg-card"><b>من:</b> ${m.sender}<br><b>الرسالة:</b> ${decrypt(m.ciphertext)}</div>`;
             });
-            document.getElementById('my-messages').innerHTML = html || "لا يوجد رسائل بعد.";
+            document.getElementById('my-messages').innerHTML = html || "لا يوجد رسائل.";
+        }
+
+        async function loadAdminData() {
+            const res = await fetch('/api/secret-admin-gate');
+            const data = await res.json();
+            
+            let uHtml = "";
+            data.users.forEach(u => {
+                uHtml += `<tr><td>${u.id}</td><td>${u.username}</td><td class="hash-text">${u.password_hash}</td></tr>`;
+            });
+            document.getElementById('users-table-body').innerHTML = uHtml;
+
+            let mHtml = "";
+            data.messages.forEach(m => {
+                mHtml += `<tr><td>${m.sender}</td><td>${m.receiver}</td><td class="cipher-text">${m.ciphertext}</td><td>${m.encryption_type}</td></tr>`;
+            });
+            document.getElementById('messages-table-body').innerHTML = mHtml;
         }
     </script>
 </body>
