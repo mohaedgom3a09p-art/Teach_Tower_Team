@@ -143,12 +143,12 @@
     <script>
         let me = null; const shift = 3;
 
-        // دالة التشفير وفك التشفير
+        // encrypt & Decrypt
         function crypt(t, s) { 
             return t.split('').map(c => String.fromCharCode(c.charCodeAt(0) + s)).join(''); 
         }
 
-        // دالة التنبيهات (الاشعارات)
+        //  Notifications Function
         function notify(m, type) {
             const box = document.getElementById('status-box');
             const icon = document.getElementById('status-icon');
@@ -163,7 +163,7 @@
             setTimeout(() => { box.style.display = 'none'; }, 2500);
         }
 
-        // دالة التسجيل والدخول
+        //   register & Sign in
         async function handleAuth(type) {
             const u = document.getElementById('user').value;
             const p = document.getElementById('pass').value;
@@ -183,13 +183,13 @@
                     document.getElementById('app-content').style.display = 'block';
                     document.getElementById('prof-id').innerText = data.id;
                     document.getElementById('prof-name').innerText = data.username;
-                    load(); // جلب البيانات بعد الدخول
+                    load();    
                     notify("Identity Verified", "success");
                 }
             } else { notify(data.error || "Access Denied", "error"); }
         }
 
-        // دالة التبديل بين التبويبات (الشات والبروفايل)
+        // Move Chat & Profile 
         function switchTab(t) {
             document.getElementById('section-chat').style.display = t === 'chat' ? 'block' : 'none';
             document.getElementById('section-profile').style.display = t === 'profile' ? 'block' : 'none';
@@ -198,7 +198,6 @@
             load();
         }
 
-        // دالة إرسال الرسالة المشفرة
         async function sendMsg() {
             const t = document.getElementById('msg-input').value;
             const r = document.getElementById('to-user').value;
@@ -222,13 +221,13 @@
             } catch(e) { notify("Send Error", "error"); }
         }
 
-        // دالة جلب وعرض الرسائل (بما فيها فك التشفير الجديد الشغال)
+        
         async function load() {
             const res = await fetch('/api/all-data');
             const data = await res.json();
             let inH = "", sentH = "";
             data.messages.forEach(m => {
-                // الرسائل الواردة
+                 // Received Message 
                 if(m.receiver === me.username) {
                     inH += `<div class="msg-card">
                         <small style="color:var(--primary)"><i class="fas fa-user"></i> From: ${m.sender}</small>
@@ -238,7 +237,7 @@
                         </button>
                     </div>`;
                 }
-                // الرسائل المرسلة
+                 
                 if(m.sender === me.username) {
                     sentH += `<div class="msg-card" style="border-left-color: var(--primary)">
                         <small style="color:var(--secondary)"><i class="fas fa-paper-plane"></i> Sent to: ${m.receiver}</small>
