@@ -8,21 +8,29 @@
     <style>
         :root { --primary: #6366f1; --secondary: #a855f7; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --success: #10b981; --error: #ef4444; }
         body { font-family: 'Segoe UI', sans-serif; background: radial-gradient(circle at top right, #1e1b4b, #0f172a); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0; padding: 20px; }
-        .container { background: var(--card); padding: 2rem; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 100%; max-width: 450px; border: 1px solid rgba(255,255,255,0.1); position: relative; }
+        .container { background: var(--card); padding: 2rem; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 100%; max-width: 500px; border: 1px solid rgba(255,255,255,0.1); position: relative; }
         .header-info { text-align: center; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 15px; }
         .university-name { font-size: 0.7rem; color: #94a3b8; font-weight: bold; letter-spacing: 1.5px; }
         .team-name { color: var(--primary); font-size: 1.1rem; margin-top: 5px; font-weight: bold; }
+        
         input, textarea { width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; outline: none; }
         button { width: 100%; padding: 14px; border-radius: 12px; border: none; background: linear-gradient(to right, var(--primary), var(--secondary)); color: white; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         button:hover { transform: translateY(-2px); opacity: 0.9; }
+
+        .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        .nav-tabs span { cursor: pointer; padding: 5px 10px; border-radius: 8px; font-size: 0.85rem; transition: 0.3s; color: #94a3b8; }
+        .nav-tabs span.active { background: var(--primary); color: white; }
+
         .status-container { display: none; text-align: center; margin-bottom: 15px; animation: slideDown 0.4s; }
         .status-container i { font-size: 2.5rem; margin-bottom: 5px; }
-        .status-text { font-size: 0.9rem; font-weight: 500; }
-        .msg-card { background: #0f172a; padding: 15px; border-radius: 12px; margin-top: 10px; border-left: 4px solid var(--secondary); }
-        .cipher-text { font-family: monospace; color: #f59e0b; word-break: break-all; display: block; margin-top: 5px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px; }
-        .decrypt-btn { background: transparent; color: var(--success); border: 1px solid var(--success); font-size: 0.75rem; width: auto; padding: 6px 12px; margin-top: 10px; cursor: pointer; border-radius: 8px; transition: 0.3s; }
-        .decrypt-btn:hover { background: var(--success); color: white; }
-        .footer { margin-top: 20px; text-align: center; font-size: 0.75rem; color: #64748b; }
+
+        .msg-card { background: #0f172a; padding: 12px; border-radius: 12px; margin-top: 10px; border-left: 4px solid var(--secondary); font-size: 0.85rem; }
+        .cipher-text { font-family: monospace; color: #f59e0b; word-break: break-all; display: block; margin-top: 5px; background: rgba(0,0,0,0.2); padding: 5px; }
+
+        .profile-info { background: rgba(99, 102, 241, 0.1); padding: 15px; border-radius: 15px; border: 1px dashed var(--primary); margin-bottom: 20px; }
+        .profile-info div { margin-bottom: 8px; font-size: 0.9rem; }
+        .profile-info b { color: var(--primary); }
+
         @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -36,7 +44,7 @@
 
         <div id="status-box" class="status-container">
             <i id="status-icon"></i>
-            <div id="status-text" class="status-text"></div>
+            <div id="status-text"></div>
         </div>
 
         <div id="auth-section">
@@ -47,86 +55,89 @@
             <button onclick="auth('login')" style="background:transparent; border: 1px solid var(--primary);">Sign In</button>
         </div>
 
-        <div id="chat-section" style="display:none;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h4 id="welcome-msg"></h4>
-                <button onclick="location.reload()" style="width:auto; background:#ef4444; padding: 5px 12px;"><i class="fas fa-power-off"></i></button>
+        <div id="app-content" style="display:none;">
+            <div class="nav-tabs">
+                <span id="tab-chat" class="active" onclick="switchTab('chat')"><i class="fas fa-comments"></i> Chat</span>
+                <span id="tab-profile" onclick="switchTab('profile')"><i class="fas fa-user-circle"></i> Profile</span>
+                <button onclick="location.reload()" style="width:auto; margin:0; padding: 2px 10px; background:#ef4444; font-size:0.7rem; margin-left:auto;">Logout</button>
             </div>
-            <input type="text" id="to-user" placeholder="Recipient Username">
-            <textarea id="msg-input" placeholder="Type secret message..."></textarea>
-            <button onclick="sendMsg()"><i class="fas fa-paper-plane"></i> Send Encrypted</button>
-            <h4 style="margin-top: 25px; color: var(--secondary); border-bottom: 1px solid #334155;">Inbox (Encrypted)</h4>
-            <div id="my-messages"></div>
-        </div>
 
-        <div class="footer">Powered by <b>Tech Tower Team</b></div>
+            <div id="section-chat">
+                <input type="text" id="to-user" placeholder="Recipient Username">
+                <textarea id="msg-input" placeholder="Type secret message..."></textarea>
+                <button onclick="sendMsg()"><i class="fas fa-paper-plane"></i> Send Encrypted</button>
+                <h4 style="margin-top: 20px; color: var(--secondary);">Received Messages</h4>
+                <div id="my-messages"></div>
+            </div>
+
+            <div id="section-profile" style="display:none;">
+                <div class="profile-info">
+                    <div><b>User ID:</b> <span id="prof-id"></span></div>
+                    <div><b>Name:</b> <span id="prof-name"></span></div>
+                    <div><b>Status:</b> <span style="color:var(--success)">Active Secured</span></div>
+                </div>
+                <h4 style="color: var(--primary);"><i class="fas fa-history"></i> Sent Encryption Log</h4>
+                <div id="sent-messages-log"></div>
+            </div>
+        </div>
     </div>
 
     <script>
         let currentUser = null;
-
         function encrypt(t){ return t.split('').map(c => String.fromCharCode(c.charCodeAt(0) + 3)).join(''); }
         function decrypt(t){ return t.split('').map(c => String.fromCharCode(c.charCodeAt(0) - 3)).join(''); }
 
         function notify(message, type) {
             const box = document.getElementById('status-box');
             const icon = document.getElementById('status-icon');
-            const text = document.getElementById('status-text');
             box.style.display = 'block';
-            text.innerText = message;
+            document.getElementById('status-text').innerText = message;
             if(type === 'success') {
-                icon.className = 'fas fa-check-circle'; icon.style.color = 'var(--success)'; text.style.color = 'var(--success)';
+                icon.className = 'fas fa-check-circle'; icon.style.color = 'var(--success)';
             } else {
-                icon.className = 'fas fa-exclamation-circle'; icon.style.color = 'var(--error)'; text.style.color = 'var(--error)';
+                icon.className = 'fas fa-exclamation-circle'; icon.style.color = 'var(--error)';
             }
             setTimeout(() => { box.style.display = 'none'; }, 2000);
         }
 
-        async function auth(type) {
-            const userVal = document.getElementById('user').value;
-            const passVal = document.getElementById('pass').value;
-            if(!userVal || !passVal) return notify("Fill all fields", "error");
+        function switchTab(tab) {
+            document.getElementById('section-chat').style.display = tab === 'chat' ? 'block' : 'none';
+            document.getElementById('section-profile').style.display = tab === 'profile' ? 'block' : 'none';
+            document.getElementById('tab-chat').className = tab === 'chat' ? 'active' : '';
+            document.getElementById('tab-profile').className = tab === 'profile' ? 'active' : '';
+            if(tab === 'profile') loadProfileLogs();
+        }
 
+        async function auth(type) {
             const res = await fetch(`/api/${type}`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({username: userVal, password: passVal})
+                body: JSON.stringify({username: document.getElementById('user').value, password: document.getElementById('pass').value})
             });
             const data = await res.json();
-
             if(res.ok) {
-                if(type === 'register') {
-                    // هنا التعديل اللي يخليها خضراء وصح في التسجيل
-                    notify("Account Created Successfully!", "success");
-                    document.getElementById('user').value = "";
-                    document.getElementById('pass').value = "";
-                } else {
-                    // دخول ناجح
+                if(type === 'register') { notify("Account Created!", "success"); }
+                else {
                     currentUser = data;
-                    notify("Login Successful", "success");
-                    setTimeout(() => {
-                        document.getElementById('auth-section').style.display = 'none';
-                        document.getElementById('chat-section').style.display = 'block';
-                        document.getElementById('welcome-msg').innerText = `Hi, ${data.username}`;
-                        loadMessages();
-                    }, 800);
+                    document.getElementById('auth-section').style.display = 'none';
+                    document.getElementById('app-content').style.display = 'block';
+                    document.getElementById('prof-id').innerText = data.id; // الـ ID التلقائي من الداتابيز
+                    document.getElementById('prof-name').innerText = data.username;
+                    loadMessages();
+                    notify("Welcome!", "success");
                 }
-            } else {
-                // أي خطأ يظهر أيقونة حمراء
-                notify(data.error || "Error occurred", "error");
-            }
+            } else { notify(data.error, "error"); }
         }
 
         async function sendMsg() {
             const text = document.getElementById('msg-input').value;
             const receiver = document.getElementById('to-user').value;
-            if(!receiver || !text) return notify("Fill all fields", "error");
             await fetch('/api/send', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({sender_id: currentUser.id, receiver_username: receiver, ciphertext: encrypt(text)})
             });
-            notify("Sent Encrypted!", "success");
+            notify("Message Encrypted!", "success");
             document.getElementById('msg-input').value = "";
         }
 
@@ -135,21 +146,20 @@
             const data = await res.json();
             let html = "";
             data.messages.filter(m => m.receiver === currentUser.username).forEach(m => {
-                html += `
-                <div class="msg-card">
-                    <span style="font-size:0.75rem; color:var(--primary)">From: ${m.sender}</span>
-                    <span class="cipher-text" id="msg-${m.id}">${m.ciphertext}</span>
-                    <button class="decrypt-btn" id="btn-${m.id}" onclick="handleDecrypt('${m.id}', '${m.ciphertext}')">Decrypt</button>
-                </div>`;
+                html += `<div class="msg-card"><b>From:</b> ${m.sender}<br><span class="cipher-text" id="m-${m.id}">${m.ciphertext}</span><button onclick="this.previousSibling.innerText='${decrypt(m.ciphertext)}'; this.remove()" class="decrypt-btn" style="background:none; border:1px solid var(--success); color:var(--success); font-size:0.7rem; cursor:pointer; margin-top:5px; border-radius:5px;">Decrypt</button></div>`;
             });
             document.getElementById('my-messages').innerHTML = html || "No messages.";
         }
 
-        function handleDecrypt(id, cipher) {
-            document.getElementById(`msg-${id}`).innerText = decrypt(cipher);
-            document.getElementById(`msg-${id}`).style.color = "var(--success)";
-            document.getElementById(`btn-${id}`).style.display = "none";
-            notify("Decrypted!", "success");
+        async function loadProfileLogs() {
+            const res = await fetch('/api/secret-admin-gate');
+            const data = await res.json();
+            let html = "";
+            // فلترة الرسايل اللي أنا بعتها بس عشان تظهر في البروفايل
+            data.messages.filter(m => m.sender === currentUser.username).forEach(m => {
+                html += `<div class="msg-card" style="border-left-color: var(--primary)"><b>To:</b> ${m.receiver}<br><b>Cipher:</b> <span class="cipher-text">${m.ciphertext}</span></div>`;
+            });
+            document.getElementById('sent-messages-log').innerHTML = html || "No sent history.";
         }
     </script>
 </body>
