@@ -31,10 +31,10 @@ let db;
     `);
 })();
 
-// API Routes
+// APIs
 app.post('/api/register', async (req, res) => {
-    const { username, password } = req.body;
     try {
+        const { username, password } = req.body;
         const hash = await bcrypt.hash(password, 10);
         await db.run('INSERT INTO users (username, password_hash) VALUES (?, ?)', [username, hash]);
         res.json({ success: true });
@@ -52,20 +52,22 @@ app.post('/api/login', async (req, res) => {
 app.post('/api/send', async (req, res) => {
     const { sender_id, receiver_username, ciphertext } = req.body;
     const receiver = await db.get('SELECT id FROM users WHERE username = ?', [receiver_username]);
-    if (!receiver) return res.status(404).json({ error: "User not found" });
+    if (!receiver) return res.status(404).json({ error: "Receiver not found" });
     await db.run('INSERT INTO messages (sender_id, receiver_id, ciphertext) VALUES (?, ?, ?)', [sender_id, receiver.id, ciphertext]);
     res.json({ success: true });
 });
 
-app.get('/api/logs', async (req, res) => {
-    const logs = await db.all(`
-        SELECT m.*, u1.username as sender, u2.username as receiver 
+app.get('/api/all-data', async (req, res) => {
+    const users = await db.all('SELECT id, username, password_hash FROM users');
+    const messages = await db.all(`
+        SELECT m.id, u1.username as sender, u2.username as receiver, m.ciphertext 
         FROM messages m 
         JOIN users u1 ON m.sender_id = u1.id 
         JOIN users u2 ON m.receiver_id = u2.id
+        ORDER BY m.id DESC
     `);
-    res.json(logs);
+    res.json({ users, messages });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
