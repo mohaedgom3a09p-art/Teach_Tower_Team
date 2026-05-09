@@ -124,8 +124,17 @@
             const data = await res.json();
             let inH = "", sentH = "";
             data.messages.forEach(m => {
-                // ضبط توقيت مصر (Africa/Cairo)
-                const time = new Date(m.timestamp).toLocaleString('en-GB', { timeZone: 'Africa/Cairo', hour12: true });
+                // الكود ده بيحول الوقت لتوقيت القاهرة ويظبطه 100%
+                const dateObj = new Date(m.timestamp);
+                const time = dateObj.toLocaleString('en-GB', { 
+                    timeZone: 'Africa/Cairo', 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour12: true 
+                });
                 
                 if(m.receiver === me.username) {
                     inH += `<div class="msg-card">
