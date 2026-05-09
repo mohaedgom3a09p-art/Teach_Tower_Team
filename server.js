@@ -40,7 +40,6 @@ app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     const user = await db.get('SELECT * FROM users WHERE username = ?', [username]);
     if (user && await bcrypt.compare(password, user.password_hash)) {
-        // نرسل الـ Hash والـ ID مع بيانات الدخول للبروفايل
         res.json({ id: user.id, username: user.username, password_hash: user.password_hash });
     } else { res.status(401).json({ error: "Invalid credentials" }); }
 });
@@ -53,12 +52,10 @@ app.post('/api/send', async (req, res) => {
     res.json({ success: true });
 });
 
-// جلب الرسائل مع الوقت والـ IDs لكل مستخدم
 app.get('/api/all-data', async (req, res) => {
     try {
         const messages = await db.all(`
-            SELECT m.id as msg_id, 
-                   u1.id as s_id, u1.username as sender, 
+            SELECT m.id as msg_id, u1.id as s_id, u1.username as sender, 
                    u2.id as r_id, u2.username as receiver, 
                    m.ciphertext, m.timestamp 
             FROM messages m 
@@ -71,4 +68,4 @@ app.get('/api/all-data', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
