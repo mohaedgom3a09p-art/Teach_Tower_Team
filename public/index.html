@@ -112,9 +112,25 @@
             const t = document.getElementById('msg-input').value;
             const r = document.getElementById('to-user').value;
             if(!t || !r) return notify("Fill all fields", "error");
+
+            // هنا بناخد توقيت الجهاز (الموبايل/اللابتوب) في لحظة الإرسال
+            const deviceTime = new Date().toLocaleString('en-GB', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour12: true 
+            });
+
             await fetch('/api/send', {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({sender_id: me.id, receiver_username: r, ciphertext: crypt(t, shift)})
+                body: JSON.stringify({
+                    sender_id: me.id, 
+                    receiver_username: r, 
+                    ciphertext: crypt(t, shift),
+                    local_time: deviceTime // بنبعت الوقت للجهاز
+                })
             });
             notify("Message Sent", "success"); document.getElementById('msg-input').value = ""; load();
         }
@@ -124,17 +140,8 @@
             const data = await res.json();
             let inH = "", sentH = "";
             data.messages.forEach(m => {
-                // الكود ده بيحول الوقت لتوقيت القاهرة ويظبطه 100%
-                const dateObj = new Date(m.timestamp);
-                const time = dateObj.toLocaleString('en-GB', { 
-                    timeZone: 'Africa/Cairo', 
-                    hour: '2-digit', 
-                    minute: '2-digit',
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour12: true 
-                });
+                // بنعرض الوقت اللي متخزن في الداتا بيز (اللي هو وقت الجهاز اللي بعت)
+                const time = m.timestamp;
                 
                 if(m.receiver === me.username) {
                     inH += `<div class="msg-card">
