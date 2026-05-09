@@ -12,23 +12,17 @@
         .header-info { text-align: center; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 15px; }
         .university-name { font-size: 0.7rem; color: #94a3b8; font-weight: bold; letter-spacing: 1.5px; }
         .team-name { color: var(--primary); font-size: 1.1rem; margin-top: 5px; font-weight: bold; }
-        
         input, textarea { width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; outline: none; }
         button { width: 100%; padding: 14px; border-radius: 12px; border: none; background: linear-gradient(to right, var(--primary), var(--secondary)); color: white; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         button:hover { transform: translateY(-2px); opacity: 0.9; }
-        
         .status-container { display: none; text-align: center; margin-bottom: 15px; animation: slideDown 0.4s; }
         .status-container i { font-size: 2.5rem; margin-bottom: 5px; }
         .status-text { font-size: 0.9rem; font-weight: 500; }
-        
         .msg-card { background: #0f172a; padding: 15px; border-radius: 12px; margin-top: 10px; border-left: 4px solid var(--secondary); }
-        .cipher-text { font-family: monospace; color: #f59e0b; word-break: break-all; display: block; margin-top: 5px; font-size: 0.95rem; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px; }
-        .decrypt-btn { background: transparent; color: var(--success); border: 1px solid var(--success); font-size: 0.75rem; width: auto; padding: 6px 12px; margin-top: 10px; display: flex; align-items: center; gap: 5px; }
+        .cipher-text { font-family: monospace; color: #f59e0b; word-break: break-all; display: block; margin-top: 5px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px; }
+        .decrypt-btn { background: transparent; color: var(--success); border: 1px solid var(--success); font-size: 0.75rem; width: auto; padding: 6px 12px; margin-top: 10px; cursor: pointer; border-radius: 8px; transition: 0.3s; }
         .decrypt-btn:hover { background: var(--success); color: white; }
-
         .footer { margin-top: 20px; text-align: center; font-size: 0.75rem; color: #64748b; }
-        .footer b { color: var(--secondary); }
-        
         @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -61,20 +55,16 @@
             <input type="text" id="to-user" placeholder="Recipient Username">
             <textarea id="msg-input" placeholder="Type secret message..."></textarea>
             <button onclick="sendMsg()"><i class="fas fa-paper-plane"></i> Send Encrypted</button>
-            
-            <h4 style="margin-top: 25px; color: var(--secondary); border-bottom: 1px solid #334155;">Inbox (Encrypted Data)</h4>
+            <h4 style="margin-top: 25px; color: var(--secondary); border-bottom: 1px solid #334155;">Inbox (Encrypted)</h4>
             <div id="my-messages"></div>
         </div>
 
-        <div class="footer">
-            Powered by <b>Tech Tower Team</b>
-        </div>
+        <div class="footer">Powered by <b>Tech Tower Team</b></div>
     </div>
 
     <script>
         let currentUser = null;
 
-        // Caesar Cipher (Shift 3)
         function encrypt(t){ return t.split('').map(c => String.fromCharCode(c.charCodeAt(0) + 3)).join(''); }
         function decrypt(t){ return t.split('').map(c => String.fromCharCode(c.charCodeAt(0) - 3)).join(''); }
 
@@ -93,35 +83,50 @@
         }
 
         async function auth(type) {
+            const userVal = document.getElementById('user').value;
+            const passVal = document.getElementById('pass').value;
+            if(!userVal || !passVal) return notify("Fill all fields", "error");
+
             const res = await fetch(`/api/${type}`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({username: document.getElementById('user').value, password: document.getElementById('pass').value})
+                body: JSON.stringify({username: userVal, password: passVal})
             });
             const data = await res.json();
-            if(data.id) {
-                currentUser = data;
-                notify("Login Successful", "success");
-                setTimeout(() => {
-                    document.getElementById('auth-section').style.display = 'none';
-                    document.getElementById('chat-section').style.display = 'block';
-                    document.getElementById('welcome-msg').innerText = `Hi, ${data.username}`;
-                    loadMessages();
-                }, 800);
-            } else { notify(data.error || "Done", "error"); }
+
+            if(res.ok) {
+                if(type === 'register') {
+                    // هنا التعديل اللي يخليها خضراء وصح في التسجيل
+                    notify("Account Created Successfully!", "success");
+                    document.getElementById('user').value = "";
+                    document.getElementById('pass').value = "";
+                } else {
+                    // دخول ناجح
+                    currentUser = data;
+                    notify("Login Successful", "success");
+                    setTimeout(() => {
+                        document.getElementById('auth-section').style.display = 'none';
+                        document.getElementById('chat-section').style.display = 'block';
+                        document.getElementById('welcome-msg').innerText = `Hi, ${data.username}`;
+                        loadMessages();
+                    }, 800);
+                }
+            } else {
+                // أي خطأ يظهر أيقونة حمراء
+                notify(data.error || "Error occurred", "error");
+            }
         }
 
         async function sendMsg() {
             const text = document.getElementById('msg-input').value;
             const receiver = document.getElementById('to-user').value;
-            if(!receiver || !text) return notify("All fields required", "error");
-
+            if(!receiver || !text) return notify("Fill all fields", "error");
             await fetch('/api/send', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({sender_id: currentUser.id, receiver_username: receiver, ciphertext: encrypt(text)})
             });
-            notify("Encrypted & Stored", "success");
+            notify("Sent Encrypted!", "success");
             document.getElementById('msg-input').value = "";
         }
 
@@ -134,26 +139,17 @@
                 <div class="msg-card">
                     <span style="font-size:0.75rem; color:var(--primary)">From: ${m.sender}</span>
                     <span class="cipher-text" id="msg-${m.id}">${m.ciphertext}</span>
-                    <button class="decrypt-btn" id="btn-${m.id}" onclick="handleDecrypt('${m.id}', '${m.ciphertext}')">
-                        <i class="fas fa-unlock-alt"></i> Decrypt Message
-                    </button>
+                    <button class="decrypt-btn" id="btn-${m.id}" onclick="handleDecrypt('${m.id}', '${m.ciphertext}')">Decrypt</button>
                 </div>`;
             });
-            document.getElementById('my-messages').innerHTML = html || "No messages found.";
+            document.getElementById('my-messages').innerHTML = html || "No messages.";
         }
 
         function handleDecrypt(id, cipher) {
-            const msgElement = document.getElementById(`msg-${id}`);
-            const btnElement = document.getElementById(`btn-${id}`);
-            
-            // تنفيذ فك التشفير
-            msgElement.innerText = decrypt(cipher);
-            msgElement.style.color = "var(--success)";
-            msgElement.style.fontFamily = "Segoe UI";
-            
-            // إخفاء الزرار بعد فك التشفير
-            btnElement.style.display = "none";
-            notify("Message Decrypted!", "success");
+            document.getElementById(`msg-${id}`).innerText = decrypt(cipher);
+            document.getElementById(`msg-${id}`).style.color = "var(--success)";
+            document.getElementById(`btn-${id}`).style.display = "none";
+            notify("Decrypted!", "success");
         }
     </script>
 </body>
