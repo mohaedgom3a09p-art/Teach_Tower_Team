@@ -31,7 +31,6 @@ let db;
     `);
 })();
 
-// APIs
 app.post('/api/register', async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -58,15 +57,16 @@ app.post('/api/send', async (req, res) => {
 });
 
 app.get('/api/all-data', async (req, res) => {
-    const users = await db.all('SELECT id, username, password_hash FROM users');
-    const messages = await db.all(`
-        SELECT m.id, u1.username as sender, u2.username as receiver, m.ciphertext 
-        FROM messages m 
-        JOIN users u1 ON m.sender_id = u1.id 
-        JOIN users u2 ON m.receiver_id = u2.id
-        ORDER BY m.id DESC
-    `);
-    res.json({ users, messages });
+    try {
+        const messages = await db.all(`
+            SELECT m.id, u1.username as sender, u2.username as receiver, m.ciphertext 
+            FROM messages m 
+            JOIN users u1 ON m.sender_id = u1.id 
+            JOIN users u2 ON m.receiver_id = u2.id
+            ORDER BY m.id DESC
+        `);
+        res.json({ messages });
+    } catch (e) { res.status(500).json({ error: "Database error" }); }
 });
 
 const PORT = process.env.PORT || 3000;
