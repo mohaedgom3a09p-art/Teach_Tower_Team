@@ -22,11 +22,12 @@ let db;
             sender_id INTEGER,
             receiver_id INTEGER,
             ciphertext TEXT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            timestamp TEXT -- غيرنا النوع هنا لنص عشان يستوعب وقت الجهاز المرسل
         );
     `);
 })();
 
+// دالة التسجيل
 app.post('/api/register', async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -36,6 +37,7 @@ app.post('/api/register', async (req, res) => {
     } catch (e) { res.status(400).json({ error: "Username exists" }); }
 });
 
+// دالة الدخول
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     const user = await db.get('SELECT * FROM users WHERE username = ?', [username]);
@@ -44,14 +46,19 @@ app.post('/api/login', async (req, res) => {
     } else { res.status(401).json({ error: "Invalid credentials" }); }
 });
 
+// دالة الإرسال - تم التعديل لاستقبال الوقت من العميل (Client)
 app.post('/api/send', async (req, res) => {
-    const { sender_id, receiver_username, ciphertext } = req.body;
+    const { sender_id, receiver_username, ciphertext, local_time } = req.body;
     const receiver = await db.get('SELECT id FROM users WHERE username = ?', [receiver_username]);
     if (!receiver) return res.status(404).json({ error: "User not found" });
-    await db.run('INSERT INTO messages (sender_id, receiver_id, ciphertext) VALUES (?, ?, ?)', [sender_id, receiver.id, ciphertext]);
+    
+    // حفظ وقت الجهاز اللي اتبعت مع الرسالة
+    await db.run('INSERT INTO messages (sender_id, receiver_id, ciphertext, timestamp) VALUES (?, ?, ?, ?)', 
+        [sender_id, receiver.id, ciphertext, local_time]);
     res.json({ success: true });
 });
 
+// جلب البيانات
 app.get('/api/all-data', async (req, res) => {
     try {
         const messages = await db.all(`
