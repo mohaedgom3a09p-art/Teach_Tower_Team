@@ -17,22 +17,18 @@
         button { width: 100%; padding: 14px; border-radius: 12px; border: none; background: linear-gradient(to right, var(--primary), var(--secondary)); color: white; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         button:hover { transform: translateY(-2px); opacity: 0.9; }
         
-        /* Status Icons Styling */
         .status-container { display: none; text-align: center; margin-bottom: 15px; animation: slideDown 0.4s; }
         .status-container i { font-size: 2.5rem; margin-bottom: 5px; }
         .status-text { font-size: 0.9rem; font-weight: 500; }
         
         .msg-card { background: #0f172a; padding: 15px; border-radius: 12px; margin-top: 10px; border-left: 4px solid var(--secondary); }
-        .cipher-text { font-family: monospace; color: #f59e0b; word-break: break-all; display: block; margin-top: 5px; }
-        .decrypt-btn { background: transparent; color: var(--success); border: 1px solid var(--success); font-size: 0.7rem; width: auto; padding: 4px 8px; margin-top: 8px; }
+        .cipher-text { font-family: monospace; color: #f59e0b; word-break: break-all; display: block; margin-top: 5px; font-size: 0.95rem; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px; }
+        .decrypt-btn { background: transparent; color: var(--success); border: 1px solid var(--success); font-size: 0.75rem; width: auto; padding: 6px 12px; margin-top: 10px; display: flex; align-items: center; gap: 5px; }
+        .decrypt-btn:hover { background: var(--success); color: white; }
 
         .footer { margin-top: 20px; text-align: center; font-size: 0.75rem; color: #64748b; }
         .footer b { color: var(--secondary); }
-
-        #admin-section { max-width: 1000px; width: 100%; display: none; background: var(--card); padding: 30px; border-radius: 24px; }
-        .admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.85rem; }
-        .admin-table th, .admin-table td { padding: 12px; border: 1px solid #334155; text-align: left; }
-
+        
         @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -53,8 +49,8 @@
             <h3 style="text-align:center;"><i class="fas fa-user-lock"></i> Secure Access</h3>
             <input type="text" id="user" placeholder="Username">
             <input type="password" id="pass" placeholder="Password">
-            <button onclick="auth('register')"><i class="fas fa-user-plus"></i> Create Account</button>
-            <button onclick="auth('login')" style="background:transparent; border: 1px solid var(--primary);"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+            <button onclick="auth('register')">Create Account</button>
+            <button onclick="auth('login')" style="background:transparent; border: 1px solid var(--primary);">Sign In</button>
         </div>
 
         <div id="chat-section" style="display:none;">
@@ -63,9 +59,10 @@
                 <button onclick="location.reload()" style="width:auto; background:#ef4444; padding: 5px 12px;"><i class="fas fa-power-off"></i></button>
             </div>
             <input type="text" id="to-user" placeholder="Recipient Username">
-            <textarea id="msg-input" placeholder="Secret message..."></textarea>
+            <textarea id="msg-input" placeholder="Type secret message..."></textarea>
             <button onclick="sendMsg()"><i class="fas fa-paper-plane"></i> Send Encrypted</button>
-            <h4 style="margin-top: 25px; color: var(--secondary); border-bottom: 1px solid #334155;">Inbox (Encrypted)</h4>
+            
+            <h4 style="margin-top: 25px; color: var(--secondary); border-bottom: 1px solid #334155;">Inbox (Encrypted Data)</h4>
             <div id="my-messages"></div>
         </div>
 
@@ -74,54 +71,26 @@
         </div>
     </div>
 
-    <div id="admin-section">
-        <h2 style="text-align:center;"><i class="fas fa-user-shield"></i> Admin Monitor Center</h2>
-        <table class="admin-table">
-            <thead><tr><th>ID</th><th>Username</th><th>Hash</th></tr></thead>
-            <tbody id="users-table-body"></tbody>
-        </table>
-        <table class="admin-table" style="margin-top:30px;">
-            <thead><tr><th>Sender</th><th>Receiver</th><th>Ciphertext</th></tr></thead>
-            <tbody id="messages-table-body"></tbody>
-        </table>
-        <button onclick="location.href='/'" style="width:200px; margin: 20px auto; display: block;">Back to Home</button>
-    </div>
-
     <script>
-        let currentUser = null; // البيانات هنا هتمسح مع الريفريش تلقائياً
+        let currentUser = null;
 
+        // Caesar Cipher (Shift 3)
         function encrypt(t){ return t.split('').map(c => String.fromCharCode(c.charCodeAt(0) + 3)).join(''); }
         function decrypt(t){ return t.split('').map(c => String.fromCharCode(c.charCodeAt(0) - 3)).join(''); }
 
-        // إظهار الأيقونات بدل الـ Alert
         function notify(message, type) {
             const box = document.getElementById('status-box');
             const icon = document.getElementById('status-icon');
             const text = document.getElementById('status-text');
-            
             box.style.display = 'block';
             text.innerText = message;
-            
             if(type === 'success') {
-                icon.className = 'fas fa-check-circle';
-                icon.style.color = 'var(--success)';
-                text.style.color = 'var(--success)';
+                icon.className = 'fas fa-check-circle'; icon.style.color = 'var(--success)'; text.style.color = 'var(--success)';
             } else {
-                icon.className = 'fas fa-exclamation-circle';
-                icon.style.color = 'var(--error)';
-                text.style.color = 'var(--error)';
+                icon.className = 'fas fa-exclamation-circle'; icon.style.color = 'var(--error)'; text.style.color = 'var(--error)';
             }
-
-            setTimeout(() => { box.style.display = 'none'; }, 2500);
+            setTimeout(() => { box.style.display = 'none'; }, 2000);
         }
-
-        window.onload = () => {
-            if (window.location.pathname === '/admin-dashboard') {
-                document.getElementById('main-container').style.display = 'none';
-                document.getElementById('admin-section').style.display = 'block';
-                loadAdminData();
-            }
-        };
 
         async function auth(type) {
             const res = await fetch(`/api/${type}`, {
@@ -130,32 +99,29 @@
                 body: JSON.stringify({username: document.getElementById('user').value, password: document.getElementById('pass').value})
             });
             const data = await res.json();
-            
             if(data.id) {
                 currentUser = data;
-                notify("Access Granted!", "success");
+                notify("Login Successful", "success");
                 setTimeout(() => {
                     document.getElementById('auth-section').style.display = 'none';
                     document.getElementById('chat-section').style.display = 'block';
-                    document.getElementById('welcome-msg').innerText = `Hello, ${data.username}`;
+                    document.getElementById('welcome-msg').innerText = `Hi, ${data.username}`;
                     loadMessages();
-                }, 1000);
-            } else { 
-                notify(data.error || "Action Completed", type === 'register' ? "success" : "error"); 
-            }
+                }, 800);
+            } else { notify(data.error || "Done", "error"); }
         }
 
         async function sendMsg() {
             const text = document.getElementById('msg-input').value;
             const receiver = document.getElementById('to-user').value;
-            if(!receiver || !text) return notify("Missing fields", "error");
+            if(!receiver || !text) return notify("All fields required", "error");
 
             await fetch('/api/send', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({sender_id: currentUser.id, receiver_username: receiver, ciphertext: encrypt(text)})
             });
-            notify("Encrypted & Sent!", "success");
+            notify("Encrypted & Stored", "success");
             document.getElementById('msg-input').value = "";
         }
 
@@ -168,23 +134,26 @@
                 <div class="msg-card">
                     <span style="font-size:0.75rem; color:var(--primary)">From: ${m.sender}</span>
                     <span class="cipher-text" id="msg-${m.id}">${m.ciphertext}</span>
-                    <button class="decrypt-btn" onclick="document.getElementById('msg-${m.id}').innerText='${decrypt(m.ciphertext)}'">
-                        <i class="fas fa-unlock"></i> Decrypt
+                    <button class="decrypt-btn" id="btn-${m.id}" onclick="handleDecrypt('${m.id}', '${m.ciphertext}')">
+                        <i class="fas fa-unlock-alt"></i> Decrypt Message
                     </button>
                 </div>`;
             });
-            document.getElementById('my-messages').innerHTML = html || "Empty Inbox";
+            document.getElementById('my-messages').innerHTML = html || "No messages found.";
         }
 
-        async function loadAdminData() {
-            const res = await fetch('/api/secret-admin-gate');
-            const data = await res.json();
-            let uHtml = "";
-            data.users.forEach(u => { uHtml += `<tr><td>${u.id}</td><td>${u.username}</td><td style="font-size:0.6rem; color:#10b981">${u.password_hash}</td></tr>`; });
-            document.getElementById('users-table-body').innerHTML = uHtml;
-            let mHtml = "";
-            data.messages.forEach(m => { mHtml += `<tr><td>${m.sender}</td><td>${m.receiver}</td><td style="color:#f59e0b">${m.ciphertext}</td></tr>`; });
-            document.getElementById('messages-table-body').innerHTML = mHtml;
+        function handleDecrypt(id, cipher) {
+            const msgElement = document.getElementById(`msg-${id}`);
+            const btnElement = document.getElementById(`btn-${id}`);
+            
+            // تنفيذ فك التشفير
+            msgElement.innerText = decrypt(cipher);
+            msgElement.style.color = "var(--success)";
+            msgElement.style.fontFamily = "Segoe UI";
+            
+            // إخفاء الزرار بعد فك التشفير
+            btnElement.style.display = "none";
+            notify("Message Decrypted!", "success");
         }
     </script>
 </body>
