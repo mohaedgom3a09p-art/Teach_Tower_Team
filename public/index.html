@@ -11,51 +11,62 @@
         .container { background: var(--card); padding: 2rem; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 100%; max-width: 480px; border: 1px solid rgba(255,255,255,0.1); }
         .header-info { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #334155; padding-bottom: 15px; }
         input, textarea { width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; outline: none; }
-        button { width: 100%; padding: 14px; border-radius: 12px; border: none; background: linear-gradient(to right, var(--primary), var(--secondary)); color: white; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; }
+        button { width: 100%; padding: 14px; border-radius: 12px; border: none; background: linear-gradient(to right, var(--primary), var(--secondary)); color: white; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; transition: 0.3s; }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
         .msg-card { background: #0f172a; padding: 15px; border-radius: 15px; margin-top: 12px; border-left: 4px solid var(--secondary); position: relative; }
         .cipher-text { font-family: monospace; color: #f59e0b; word-break: break-all; display: block; margin: 8px 0; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px; font-size: 0.85rem; }
-        .meta-info { font-size: 0.7rem; color: #94a3b8; display: flex; justify-content: space-between; margin-top: 5px; }
-        .decrypt-btn { background: transparent; border: 1px solid var(--success); color: var(--success); padding: 4px 10px; font-size: 0.7rem; cursor: pointer; border-radius: 6px; width: auto; margin-top: 5px; }
+        .meta-info { font-size: 0.65rem; color: #94a3b8; display: flex; justify-content: space-between; margin-top: 8px; }
+        .decrypt-btn { background: transparent; border: 1px solid var(--success); color: var(--success); padding: 4px 10px; font-size: 0.7rem; cursor: pointer; border-radius: 6px; width: auto; margin-top: 5px; display: flex; align-items: center; gap: 5px; }
         .profile-box { background: rgba(99, 102, 241, 0.1); padding: 20px; border-radius: 18px; border: 1px dashed var(--primary); margin-bottom: 20px; }
+        .footer-tag { text-align: center; margin-top: 25px; font-size: 0.8rem; color: #64748b; border-top: 1px solid #334155; padding-top: 15px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header-info">
-            <div style="font-size: 0.7rem; opacity: 0.7;">BATU UNIVERSITY</div>
-            <div style="color: var(--primary); font-weight: bold;"><i class="fas fa-bolt"></i> Tech Tower Team</div>
+            <div style="font-size: 0.7rem; opacity: 0.7; font-weight: bold; letter-spacing: 1px;">BATU UNIVERSITY</div>
+            <div style="color: var(--primary); font-weight: bold; font-size: 1.2rem; margin-top: 5px;"><i class="fas fa-bolt"></i> Tech Tower Team</div>
         </div>
 
         <div id="status-box" style="display:none; text-align:center; margin-bottom:10px;"><i id="status-icon"></i> <span id="status-text"></span></div>
 
         <div id="auth-section">
+            <h3 style="text-align:center;"><i class="fas fa-user-shield"></i> Access Gate</h3>
             <input type="text" id="user" placeholder="Username">
             <input type="password" id="pass" placeholder="Password">
-            <button onclick="handleAuth('register')">Create Account</button>
-            <button onclick="handleAuth('login')" style="background:transparent; border: 1px solid var(--primary);">Login</button>
+            <button onclick="handleAuth('register')"><i class="fas fa-user-plus"></i> Create Account</button>
+            <button onclick="handleAuth('login')" style="background:transparent; border: 1px solid var(--primary);"><i class="fas fa-sign-in-alt"></i> Login</button>
         </div>
 
         <div id="app-content" style="display:none;">
             <div style="display:flex; gap:10px; margin-bottom:20px;">
                 <button onclick="switchTab('chat')" style="padding:8px; font-size:0.8rem;"><i class="fas fa-comments"></i> Chat</button>
-                <button onclick="switchTab('profile')" style="padding:8px; font-size:0.8rem;"><i class="fas fa-user"></i> Profile</button>
+                <button onclick="switchTab('profile')" style="padding:8px; font-size:0.8rem;"><i class="fas fa-id-card"></i> Profile</button>
                 <button onclick="location.reload()" style="background:var(--error); width:auto;"><i class="fas fa-power-off"></i></button>
             </div>
 
             <div id="section-chat">
                 <input type="text" id="to-user" placeholder="Recipient Name">
                 <textarea id="msg-input" placeholder="Secret Message..."></textarea>
-                <button onclick="sendMsg()"><i class="fas fa-paper-plane"></i> Send</button>
+                <button onclick="sendMsg()"><i class="fas fa-paper-plane"></i> Encrypt & Send</button>
                 <div id="my-messages"></div>
             </div>
 
             <div id="section-profile" style="display:none;">
                 <div class="profile-box">
-                    <div><b>ID:</b> <span id="prof-id"></span></div>
-                    <div><b>User:</b> <span id="prof-name"></span></div>
-                    <div style="margin-top:10px; font-size:0.7rem; color:var(--error);"><b>DB Hash:</b> <span id="prof-hash" style="word-break:break-all;"></span></div>
+                    <div><i class="fas fa-fingerprint" style="color:var(--primary)"></i> <b>User ID:</b> <span id="prof-id"></span></div>
+                    <div style="margin-top:5px;"><i class="fas fa-user-circle" style="color:var(--primary)"></i> <b>User:</b> <span id="prof-name"></span></div>
+                    <div style="margin-top:10px; font-size:0.7rem; color:var(--error); border-top: 1px solid rgba(255,255,255,0.1); padding-top:10px;">
+                        <i class="fas fa-key"></i> <b>DB Hashed Password:</b><br>
+                        <span id="prof-hash" style="word-break:break-all; opacity: 0.8;"></span>
+                    </div>
                 </div>
+                <h4 style="font-size:0.9rem; color:var(--secondary);"><i class="fas fa-history"></i> Sent History</h4>
                 <div id="sent-messages-log"></div>
+            </div>
+
+            <div class="footer-tag">
+                Powered by <b>Tech Tower Team</b> <i class="fas fa-code"></i>
             </div>
         </div>
     </div>
@@ -67,21 +78,21 @@
         function notify(m, type) {
             const box = document.getElementById('status-box');
             document.getElementById('status-text').innerText = m;
+            document.getElementById('status-icon').className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
             document.getElementById('status-icon').style.color = type === 'success' ? '#10b981' : '#ef4444';
             box.style.display = 'block'; setTimeout(() => box.style.display = 'none', 2000);
         }
 
         async function handleAuth(type) {
             const res = await fetch(`/api/${type}`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({username: document.getElementById('user').value, password: document.getElementById('pass').value})
             });
             const data = await res.json();
             if(res.ok) {
                 if(type === 'register') notify("Account Created", "success");
                 else {
-                    me = data; 
+                    me = data;
                     document.getElementById('auth-section').style.display = 'none';
                     document.getElementById('app-content').style.display = 'block';
                     document.getElementById('prof-id').innerText = data.id;
@@ -100,12 +111,12 @@
         async function sendMsg() {
             const t = document.getElementById('msg-input').value;
             const r = document.getElementById('to-user').value;
+            if(!t || !r) return notify("Fill all fields", "error");
             await fetch('/api/send', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({sender_id: me.id, receiver_username: r, ciphertext: crypt(t, shift)})
             });
-            notify("Sent!", "success"); document.getElementById('msg-input').value = ""; load();
+            notify("Message Sent", "success"); document.getElementById('msg-input').value = ""; load();
         }
 
         async function load() {
@@ -113,27 +124,29 @@
             const data = await res.json();
             let inH = "", sentH = "";
             data.messages.forEach(m => {
-                const time = new Date(m.timestamp).toLocaleString('en-GB', {hour12:true});
-                // الرسائل الواردة إليّ
+                // ضبط توقيت مصر (Africa/Cairo)
+                const time = new Date(m.timestamp).toLocaleString('en-GB', { timeZone: 'Africa/Cairo', hour12: true });
+                
                 if(m.receiver === me.username) {
                     inH += `<div class="msg-card">
-                        <div style="font-size:0.75rem;"><b>From:</b> ${m.sender} (ID:${m.s_id})</div>
+                        <div style="font-size:0.75rem;"><i class="fas fa-user-tag"></i> <b>From:</b> ${m.sender} (ID:${m.s_id})</div>
                         <span class="cipher-text" id="msg-${m.msg_id}">${m.ciphertext}</span>
-                        <button class="decrypt-btn" onclick="document.getElementById('msg-${m.msg_id}').innerText='${crypt(m.ciphertext, -shift)}';this.style.display='none'">Decrypt</button>
-                        <div class="meta-info"><span>MsgID: #${m.msg_id}</span> <span>${time}</span></div>
+                        <button class="decrypt-btn" onclick="document.getElementById('msg-${m.msg_id}').innerText='${crypt(m.ciphertext, -shift)}';this.style.display='none'">
+                            <i class="fas fa-unlock"></i> Decrypt
+                        </button>
+                        <div class="meta-info"><span><i class="fas fa-hashtag"></i> ${m.msg_id}</span> <span><i class="far fa-clock"></i> ${time}</span></div>
                     </div>`;
                 }
-                // الرسائل التي أرسلتها
                 if(m.sender === me.username) {
                     sentH += `<div class="msg-card" style="border-left-color: var(--primary)">
-                        <div style="font-size:0.75rem;"><b>To:</b> ${m.receiver} (ID:${m.r_id})</div>
+                        <div style="font-size:0.75rem;"><i class="fas fa-paper-plane"></i> <b>To:</b> ${m.receiver} (ID:${m.r_id})</div>
                         <span class="cipher-text">${m.ciphertext}</span>
-                        <div class="meta-info"><span>MsgID: #${m.msg_id}</span> <span>${time}</span></div>
+                        <div class="meta-info"><span><i class="fas fa-hashtag"></i> ${m.msg_id}</span> <span><i class="far fa-clock"></i> ${time}</span></div>
                     </div>`;
                 }
             });
-            document.getElementById('my-messages').innerHTML = inH || "No messages";
-            document.getElementById('sent-messages-log').innerHTML = sentH || "No history";
+            document.getElementById('my-messages').innerHTML = inH || "<small>No messages</small>";
+            document.getElementById('sent-messages-log').innerHTML = sentH || "<small>No history</small>";
         }
     </script>
 </body>
