@@ -1,42 +1,71 @@
-async function auth(type) {
-    const userVal = document.getElementById('user').value;
-    const passVal = document.getElementById('pass').value;
+const express = require('express');
+const bcrypt = require('bcrypt');
+const sqlite3 = require('sqlite3');
+const { open } = require('sqlite');
+const path = require('path');
 
-    if(!userVal || !passVal) return notify("Please fill all fields", "error");
+const app = express();
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
+let db;
+(async () => {
+    db = await open({
+        filename: './database.db',
+        driver: sqlite3.Database
+    });
+
+    await db.exec(`
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password_hash TEXT
+        );
+        CREATE TABLE IF NOT EXISTS messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sender_id INTEGER,
+            receiver_id INTEGER,
+            ciphertext TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+    `);
+})();
+
+// API Routes
+app.post('/api/register', async (req, res) => {
+    const { username, password } = req.body;
     try {
-        const res = await fetch(`/api/${type}`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({username: userVal, password: passVal})
-        });
+        const hash = await bcrypt.hash(password, 10);
+        await db.run('INSERT INTO users (username, password_hash) VALUES (?, ?)', [username, hash]);
+        res.json({ success: true });
+    } catch (e) { res.status(400).json({ error: "Username already exists" }); }
+});
 
-        const data = await res.json();
+app.post('/api/login', async (req, res) => {
+    const { username, password } = req.body;
+    const user = await db.get('SELECT * FROM users WHERE username = ?', [username]);
+    if (user && await bcrypt.compare(password, user.password_hash)) {
+        res.json({ id: user.id, username: user.username });
+    } else { res.status(401).json({ error: "Invalid credentials" }); }
+});
 
-        // لو السيرفر رد بنجاح (كود 200)
-        if (res.ok) {
-            if (type === 'register') {
-                // حالة إنشاء حساب جديد
-                notify("Account Created! You can sign in now.", "success");
-                // بنصفر الخانات عشان يسجل دخول بيهم
-                document.getElementById('user').value = "";
-                document.getElementById('pass').value = "";
-            } else {
-                // حالة تسجيل الدخول
-                currentUser = data;
-                notify("Login Successful! Welcome back.", "success");
-                setTimeout(() => {
-                    document.getElementById('auth-section').style.display = 'none';
-                    document.getElementById('chat-section').style.display = 'block';
-                    document.getElementById('welcome-msg').innerText = `Hi, ${data.username}`;
-                    loadMessages();
-                }, 1000);
-            }
-        } else {
-            // لو في أي مشكلة (زي إن اليوزر موجود أصلاً أو الباسورد غلط)
-            notify(data.error || "Operation failed", "error");
-        }
-    } catch (err) {
-        notify("Server Connection Error", "error");
-    }
-}
+app.post('/api/send', async (req, res) => {
+    const { sender_id, receiver_username, ciphertext } = req.body;
+    const receiver = await db.get('SELECT id FROM users WHERE username = ?', [receiver_username]);
+    if (!receiver) return res.status(404).json({ error: "User not found" });
+    await db.run('INSERT INTO messages (sender_id, receiver_id, ciphertext) VALUES (?, ?, ?)', [sender_id, receiver.id, ciphertext]);
+    res.json({ success: true });
+});
+
+app.get('/api/logs', async (req, res) => {
+    const logs = await db.all(`
+        SELECT m.*, u1.username as sender, u2.username as receiver 
+        FROM messages m 
+        JOIN users u1 ON m.sender_id = u1.id 
+        JOIN users u2 ON m.receiver_id = u2.id
+    `);
+    res.json(logs);
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
