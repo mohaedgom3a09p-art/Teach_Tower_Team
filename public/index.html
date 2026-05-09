@@ -6,7 +6,6 @@
     <title>BATU Security Project</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* رجوع الستايل القديم الـ Deep Blue */
         :root { --primary: #6366f1; --secondary: #a855f7; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --success: #10b981; --error: #ef4444; }
         
         body { 
@@ -29,14 +28,12 @@
             width: 100%; 
             max-width: 480px; 
             border: 1px solid rgba(255,255,255,0.1); 
-            position: relative;
         }
 
         .header-info { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #334155; padding-bottom: 15px; }
         .university-name { font-size: 0.75rem; color: #94a3b8; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; }
         .team-name { color: var(--primary); font-size: 1.2rem; margin-top: 5px; font-weight: bold; }
 
-        /* الأقسام والملاحة */
         .nav-tabs { display: flex; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
         .nav-tabs span { cursor: pointer; padding: 6px 12px; border-radius: 10px; font-size: 0.9rem; transition: 0.3s; color: #94a3b8; }
         .nav-tabs span.active { background: rgba(99, 102, 241, 0.2); color: var(--primary); font-weight: bold; }
@@ -44,16 +41,15 @@
         input, textarea { 
             width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; 
             border: 1px solid #334155; background: #0f172a; color: white; 
-            box-sizing: border-box; outline: none; transition: 0.3s;
+            box-sizing: border-box; outline: none;
         }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
 
         button { 
             width: 100%; padding: 14px; border-radius: 12px; border: none; 
             background: linear-gradient(to right, var(--primary), var(--secondary)); 
             color: white; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; 
         }
-        button:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
+        button:hover { transform: translateY(-2px); }
 
         .status-container { display: none; text-align: center; margin-bottom: 15px; animation: slideDown 0.4s; }
         .status-container i { font-size: 2.5rem; margin-bottom: 5px; }
@@ -62,15 +58,13 @@
         .cipher-text { font-family: monospace; color: #f59e0b; word-break: break-all; display: block; margin-top: 5px; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px; }
         
         .profile-box { background: rgba(99, 102, 241, 0.1); padding: 20px; border-radius: 18px; border: 1px dashed var(--primary); margin-bottom: 20px; }
-        .profile-box div { margin-bottom: 10px; font-size: 1rem; }
-        .profile-box b { color: var(--primary); margin-right: 5px; }
 
         @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div class="container" id="main-container">
+    <div class="container">
         <div class="header-info">
             <div class="university-name">Borg Al Arab Technological University (BATU)</div>
             <div class="team-name"><i class="fas fa-bolt"></i> Tech Tower Team</div>
@@ -82,7 +76,7 @@
         </div>
 
         <div id="auth-section">
-            <h3 style="text-align:center; margin-bottom: 20px;"><i class="fas fa-user-shield"></i> Secure Login</h3>
+            <h3 style="text-align:center; margin-bottom: 20px;">Secure Login</h3>
             <input type="text" id="user" placeholder="Username">
             <input type="password" id="pass" placeholder="Password">
             <button onclick="handleAuth('register')">Create New Account</button>
@@ -91,16 +85,15 @@
 
         <div id="app-content" style="display:none;">
             <div class="nav-tabs">
-                <span id="tab-chat" class="active" onclick="switchTab('chat')"><i class="fas fa-envelope"></i> Messages</span>
-                <span id="tab-profile" onclick="switchTab('profile')"><i class="fas fa-user-circle"></i> Profile</span>
-                <button onclick="location.reload()" style="width:auto; margin:0; padding: 4px 10px; background:#ef4444; font-size:0.75rem; margin-left:auto;"><i class="fas fa-power-off"></i></button>
+                <span id="tab-chat" class="active" onclick="switchTab('chat')">Messages</span>
+                <span id="tab-profile" onclick="switchTab('profile')">Profile</span>
+                <button onclick="location.reload()" style="width:auto; margin:0; padding: 4px 10px; background:#ef4444; font-size:0.75rem; margin-left:auto;">Logout</button>
             </div>
 
             <div id="section-chat">
-                <input type="text" id="to-user" placeholder="Recipient Username">
-                <textarea id="msg-input" placeholder="Enter secret message..."></textarea>
-                <button onclick="sendMsg()"><i class="fas fa-lock"></i> Encrypt & Send</button>
-                <h4 style="margin-top: 25px; color: var(--secondary); border-bottom: 1px solid #334155; padding-bottom: 5px;">Incoming</h4>
+                <input type="text" id="to-user" placeholder="Recipient">
+                <textarea id="msg-input" placeholder="Message..."></textarea>
+                <button onclick="sendMsg()">Encrypt & Send</button>
                 <div id="my-messages"></div>
             </div>
 
@@ -109,90 +102,89 @@
                     <div><b>ID:</b> <span id="prof-id"></span></div>
                     <div><b>Username:</b> <span id="prof-name"></span></div>
                 </div>
-                <h4 style="color: var(--primary);"><i class="fas fa-history"></i> Encryption History</h4>
                 <div id="sent-messages-log"></div>
             </div>
         </div>
     </div>
 
     <script>
-        let currentUser = null;
-        const cipherShift = 3;
+        let me = null;
+        const shift = 3;
 
         function crypt(t, s) { return t.split('').map(c => String.fromCharCode(c.charCodeAt(0) + s)).join(''); }
 
-        function notify(message, type) {
+        function notify(m, type) {
             const box = document.getElementById('status-box');
             const icon = document.getElementById('status-icon');
             const text = document.getElementById('status-text');
             box.style.display = 'block';
-            text.innerText = message;
+            text.innerText = m;
+            // التصليح هنا: حطينا الألوان في string عشان الكود ميوقفش
             if(type === 'success') {
-                icon.className = 'fas fa-check-circle'; icon.style.color = var(--success); text.style.color = var(--success);
+                icon.className = 'fas fa-check-circle'; icon.style.color = '#10b981'; text.style.color = '#10b981';
             } else {
-                icon.className = 'fas fa-exclamation-circle'; icon.style.color = var(--error); text.style.color = var(--error);
+                icon.className = 'fas fa-exclamation-circle'; icon.style.color = '#ef4444'; text.style.color = '#ef4444';
             }
-            setTimeout(() => { box.style.display = 'none'; }, 2500);
+            setTimeout(() => { box.style.display = 'none'; }, 2000);
         }
 
         async function handleAuth(type) {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            if(!u || !p) return notify("Fields required", "error");
+
             const res = await fetch(`/api/${type}`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({username: document.getElementById('user').value, password: document.getElementById('pass').value})
+                body: JSON.stringify({username: u, password: p})
             });
             const data = await res.json();
             if(res.ok) {
-                if(type === 'register') { notify("Account created successfully!", "success"); }
+                if(type === 'register') { notify("Account Created!", "success"); }
                 else {
-                    currentUser = data;
+                    me = data;
                     document.getElementById('auth-section').style.display = 'none';
                     document.getElementById('app-content').style.display = 'block';
                     document.getElementById('prof-id').innerText = data.id;
                     document.getElementById('prof-name').innerText = data.username;
-                    loadData();
-                    notify("Access Granted!", "success");
+                    load();
+                    notify("Welcome!", "success");
                 }
-            } else { notify(data.error || "Action failed", "error"); }
+            } else { notify(data.error || "Failed", "error"); }
         }
 
-        function switchTab(tab) {
-            document.getElementById('section-chat').style.display = tab === 'chat' ? 'block' : 'none';
-            document.getElementById('section-profile').style.display = tab === 'profile' ? 'block' : 'none';
-            document.getElementById('tab-chat').className = tab === 'chat' ? 'active' : '';
-            document.getElementById('tab-profile').className = tab === 'profile' ? 'active' : '';
-            loadData();
+        function switchTab(t) {
+            document.getElementById('section-chat').style.display = t === 'chat' ? 'block' : 'none';
+            document.getElementById('section-profile').style.display = t === 'profile' ? 'block' : 'none';
+            document.getElementById('tab-chat').className = t === 'chat' ? 'active' : '';
+            document.getElementById('tab-profile').className = t === 'profile' ? 'active' : '';
+            load();
         }
 
         async function sendMsg() {
-            const text = document.getElementById('msg-input').value;
-            const receiver = document.getElementById('to-user').value;
-            if(!text || !receiver) return notify("All fields required", "error");
-
+            const t = document.getElementById('msg-input').value;
+            const r = document.getElementById('to-user').value;
+            if(!t || !r) return notify("Fill fields", "error");
             await fetch('/api/send', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({sender_id: currentUser.id, receiver_username: receiver, ciphertext: crypt(text, cipherShift)})
+                body: JSON.stringify({sender_id: me.id, receiver_username: r, ciphertext: crypt(t, shift)})
             });
-            notify("Encrypted & Sent", "success");
+            notify("Sent!", "success");
             document.getElementById('msg-input').value = "";
-            loadData();
+            load();
         }
 
-        async function loadData() {
+        async function load() {
             const res = await fetch('/api/all-data');
             const data = await res.json();
             let inH = "", sentH = "";
             data.messages.forEach(m => {
-                if(m.receiver === currentUser.username) {
-                    inH += `<div class="msg-card"><b>From:</b> ${m.sender}<span class="cipher-text" id="c-${m.id}">${m.ciphertext}</span><button onclick="this.previousSibling.innerText='${crypt(m.ciphertext, -cipherShift)}';this.remove()" style="background:none; border:1px solid var(--success); color:var(--success); font-size:0.7rem; cursor:pointer; margin-top:10px; border-radius:8px; padding:4px 8px;">Decrypt</button></div>`;
-                }
-                if(m.sender === currentUser.username) {
-                    sentH += `<div class="msg-card" style="border-left-color: var(--primary)"><b>To:</b> ${m.receiver}<br><span class="cipher-text">${m.ciphertext}</span></div>`;
-                }
+                if(m.receiver === me.username) inH += `<div class="msg-card">From: ${m.sender}<span class="cipher-text">${m.ciphertext}</span><button onclick="this.previousSibling.innerText='${crypt(m.ciphertext, -shift)}';this.remove()">Decrypt</button></div>`;
+                if(m.sender === me.username) sentH += `<div class="msg-card">To: ${m.receiver}<br><span class="cipher-text">${m.ciphertext}</span></div>`;
             });
-            document.getElementById('my-messages').innerHTML = inH || "Empty Inbox";
-            document.getElementById('sent-messages-log').innerHTML = sentH || "No History";
+            document.getElementById('my-messages').innerHTML = inH || "Empty";
+            document.getElementById('sent-messages-log').innerHTML = sentH || "Empty";
         }
     </script>
 </body>
